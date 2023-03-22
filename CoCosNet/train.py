@@ -23,12 +23,16 @@ opt = TrainOptions().parse()
 # print options to help debugging
 print(' '.join(sys.argv))
 
+train_path = {
+    'rgb':'/home/v-penxiao/workspace/data/train/sub_train_rgb',
+    'gray':'/home/v-penxiao/workspace/data/train/sub_train_gray'
+}
 #torch.manual_seed(0)
 # load the dataset
-dataset = IllustDataset(Path("/archive/xiaopeng/train_256_places365standard/sub_train_rgb"),
-                         Path("/archive/xiaopeng/train_256_places365standard/sub_train_gray"),
+dataset = IllustDataset(Path(train_path['rgb']),
+                         Path(train_path['gray']),
                          ["xdog", "pencil", "blend"],
-                         "jpg",
+                         "png",
                          256,
                          256,
                          "rgb",
