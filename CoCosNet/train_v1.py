@@ -7,7 +7,6 @@ import torch
 import torchvision.utils as vutils
 import sys
 from collections import OrderedDict
-# SAAN for anime colorization
 from options.train_options import TrainOptions
 import data
 from util.iter_counter import IterationCounter

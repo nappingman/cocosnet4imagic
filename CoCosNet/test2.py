@@ -14,20 +14,24 @@ from models.pix2pix_model import Pix2PixModel
 
 
 from torch.utils.data import DataLoader
-from dataset2 import IllustTestDataset
+from dataset_nxtf import IllustTestDataset
 from pathlib import Path
 
 opt = TestOptions().parse()
    
 torch.manual_seed(0)
-dataset = IllustTestDataset(Path("/home/jason/code/CoCosNet/imgs/colorart/b/"),
-                         Path("/home/jason/code/CoCosNet/imgs/colorart/a/"),
-                         ["xdog"],
+dataset = IllustTestDataset(Path("/archive/zhaowei/colorization/val_split/colors/"),
+                         Path("/archive/zhaowei/colorization/val_split/sketchs/"),
+                         ["blend"],
                          "png",
-                         256)
+                         256,
+                         nextframe=False,
+                         rndShuffle=True,
+                         b_path=Path("/archive/zhaowei/colorart/a/"),
+                         b_sketch=Path("/archive/zhaowei/colorart/a_sketch/"))
 dataloader = DataLoader(dataset,
                         batch_size=opt.batchSize,
-                        shuffle=True,
+                        shuffle=False,
                         drop_last=True)
 # dataloader = data.create_dataloader(opt)
 # dataloader.dataset[0]
@@ -47,7 +51,8 @@ for i, data_i in enumerate(dataloader):
     
     out = model(data_i, mode='inference')
     if opt.save_per_img:
-        root = save_root + '/test_per_img/'
+        #root = save_root + '/test_per_img/'
+        root =  './fid_warp_perimg'
         if not os.path.exists(root + opt.name):
             os.makedirs(root + opt.name)
         imgs = out['fake_image'].data.cpu()
@@ -73,11 +78,17 @@ for i, data_i in enumerate(dataloader):
         else:
             label = masktorgb(data_i['label'].cpu().numpy())
             label = torch.from_numpy(label).float() / 128 - 1
-        imgs = torch.cat((out['input_semantics'].data.cpu(), out['ref_image'].data.cpu(), out['fake_image'].data.cpu()), 0)
-        #imgs = torch.cat((label.cpu(), data_i['ref'].cpu(), out['fake_image'].data.cpu()), 0)
+        #imgs = torch.cat((out['input_semantics'].data.cpu(), out['ref_image'].data.cpu(), out['fake_image'].data.cpu()), 0)
+        imgs = torch.cat((label.cpu(), data_i['ref'].cpu(), out['fake_image'].data.cpu()), 0)
+        #imgs = out['fake_image'].data.cpu()
+        name = data_i['name'][0]
         try:
             imgs = (imgs + 1) / 2
-            vutils.save_image(imgs, save_root + '/test/' + opt.name + '/' + str(i) + '.png',  
+            #vutils.save_image(imgs, './fid_warp' + '/' + str(name) ,  
+            #        nrow=imgs_num, padding=0, normalize=False)
+            vutils.save_image(imgs, './fid_1batch' + '/' + str(name) ,  
                     nrow=imgs_num, padding=0, normalize=False)
+            #vutils.save_image(imgs, save_root + '/test/' + opt.name + '/' + str(i) + '.png',  
+            #        nrow=imgs_num, padding=0, normalize=False)
         except OSError as err:
             print(err)

@@ -272,7 +272,7 @@ class Pix2PixModel(torch.nn.Module):
         elif self.opt.CBN_intype == 'warp_mask':
             CBN_in = torch.cat((coor_out['warp_out'], input_semantics), dim=1)
 
-        generate_out['fake_image'] = self.net['netG'](input_semantics, warp_out=CBN_in)
+        generate_out['fake_image'] = self.net['netG'](input_semantics, coor_out['warp_ref_feature'], warp_out=CBN_in)
 
         generate_out = {**generate_out, **coor_out}
         return generate_out
@@ -287,7 +287,7 @@ class Pix2PixModel(torch.nn.Module):
         elif self.opt.CBN_intype == 'warp_mask':
             CBN_in = torch.cat((coor_out['warp_out'], input_semantics), dim=1)
 
-        generate_out['fake_image'] = self.net['netG'](input_semantics, warp_out=CBN_in)
+        generate_out['fake_image'] = self.net['netG'](input_semantics,  coor_out['warp_ref_feature'], warp_out=CBN_in)
         generate_out = {**generate_out, **coor_out}
         return generate_out
 

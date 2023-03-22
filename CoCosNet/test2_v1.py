@@ -19,17 +19,22 @@ from pathlib import Path
 
 opt = TestOptions().parse()
 #Path("/archive/zhaowei/colorart/b/"),
-#Path("/archive/zhaowei/colorart/a/")  
+#"/archive/zhaowei/evaluation/daojian_b/"
 torch.manual_seed(0)
-dataset = IllustTestDataset(Path("/home/jason/code/CoCosNet/dataset/color/"),
-                         Path("/home/jason/code/CoCosNet/dataset/sketch/"),
-                         ["xdog"],
+#/archive/zhaowei/evaluation/daojian_a/
+#"/archive/zhaowei/colorart/a/"
+dataset = IllustTestDataset(Path("/archive/zhaowei/colorart/b/"),
+                         Path("/archive/zhaowei/colorart/a/"),
+                         ["blend"],
                          "png",
                          256)
 dataloader = DataLoader(dataset,
                         batch_size=opt.batchSize,
                         shuffle=True,
                         drop_last=True)
+save_dir = './warpb_a/'
+if not os.path.exists(save_dir):
+  os.mkdir(save_dir)
 # dataloader = data.create_dataloader(opt)
 # dataloader.dataset[0]
 
@@ -40,7 +45,9 @@ save_root = os.path.join(os.path.dirname(opt.checkpoints_dir), 'output')
 
 # test
 for i, data_i in enumerate(dataloader):
+    name = data_i['name'][0]
     print('{} / {}'.format(i, len(dataloader)))
+  
     if i * opt.batchSize >= opt.how_many:
         break
     imgs_num = data_i['label'].shape[0]
@@ -74,11 +81,16 @@ for i, data_i in enumerate(dataloader):
         else:
             label = masktorgb(data_i['label'].cpu().numpy())
             label = torch.from_numpy(label).float() / 128 - 1
-        imgs = torch.cat((out['input_semantics'].data.cpu(), out['ref_image'].data.cpu(), out['fake_image'].data.cpu()), 0)
+        imgs = torch.cat((out['input_semantics'].data.cpu(), out['ref_image'].data.cpu(), out['warp_out'].data.cpu(), out['fake_image'].data.cpu()), 0)
+        #imgs = torch.cat((out['input_semantics'].data.cpu(), out['ref_image'].data.cpu(), out['fake_image'].data.cpu()), 0)
+        
+        
         #imgs = torch.cat((label.cpu(), data_i['ref'].cpu(), out['fake_image'].data.cpu()), 0)
         try:
             imgs = (imgs + 1) / 2
-            vutils.save_image(imgs, save_root + '/test/' + opt.name + '/' + str(i) + '.png',  
-                    nrow=imgs_num, padding=0, normalize=False)
+            vutils.save_image(imgs, save_dir+name,  
+                    nrow=imgs_num, padding=0, normalize=False)            
+            #vutils.save_image(imgs, save_root + '/test/' + opt.name + '/' + str(i) + '.png',  
+                    #nrow=imgs_num, padding=0, normalize=False)
         except OSError as err:
             print(err)

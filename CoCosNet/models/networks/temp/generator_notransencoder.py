@@ -23,7 +23,7 @@ class SPADEGenerator(BaseNetwork):
 
     def __init__(self, opt):
         super().__init__()
-        print('ssssssssssffsada')
+        print('this is netG without notransencoder!!!!!!!!!!!')
         self.opt = opt
         nf = opt.ngf
 

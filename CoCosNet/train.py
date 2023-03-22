@@ -25,10 +25,10 @@ print(' '.join(sys.argv))
 
 #torch.manual_seed(0)
 # load the dataset
-dataset = IllustDataset(Path("/home/jason/code/Colorization/reference_scft/data/train/color_images2"),
-                         Path("/home/jason/code/Colorization/reference_scft/data/train/sketch_images2"),
+dataset = IllustDataset(Path("/archive/xiaopeng/train_256_places365standard/sub_train_rgb"),
+                         Path("/archive/xiaopeng/train_256_places365standard/sub_train_gray"),
                          ["xdog", "pencil", "blend"],
-                         "png",
+                         "jpg",
                          256,
                          256,
                          "rgb",

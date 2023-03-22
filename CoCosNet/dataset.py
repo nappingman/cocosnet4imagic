@@ -176,7 +176,8 @@ class IllustDataset(Dataset):
         for index in range(validsize):
             color_path = self.val_list[index]
             color = cv.imread(str(color_path))
-            line = self.line_process(color_path)
+            #line = self.line_process(color_path)
+            line = cv.imread(str(color_path.replace('sub_train_rgb','sub_train_gray')))
 
             jitter = self._jitter(color)
             warp = self._warp(jitter)
@@ -204,7 +205,8 @@ class IllustDataset(Dataset):
         color = cv.imread(str(color_path))
 
         # Line prepare
-        line = self.line_process(color_path)
+        #line = self.line_process(color_path)
+        line = cv.imread(str(color_path).replace('sub_train_rgb','sub_train_gray'))
         jit, war, line,warped_line = self._preprocess(color, line)
         
         war = self._totensor(war)
@@ -330,7 +332,8 @@ class IllustTestDataset(Dataset):
         
 
         # Line prepare
-        line = self.line_process(color_path)
+        #line = self.line_process(color_path)
+        line = cv.imread(str(color_path).replace('rgb','gray'))
         line = cv.resize(line,(self.valid_size,self.valid_size))
         
         warped,warped_line = self._warp(color,line)
@@ -353,8 +356,8 @@ class IllustTestDataset(Dataset):
                       'image': color,
                       'path': str(color_path),
                       'self_ref': torch.ones_like(color),
-                      'ref': color,
-                      'label_ref': line
+                      'ref': warped,
+                      'label_ref': warped_line
                       }
 
         return input_dict

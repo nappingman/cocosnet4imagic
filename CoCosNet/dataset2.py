@@ -1,6 +1,8 @@
 import torch
 import numpy as np
 import cv2 as cv
+import os
+
 
 from PIL import Image
 from torch.utils.data import Dataset
@@ -304,7 +306,7 @@ class IllustTestDataset(Dataset):
         # Color prepare
         color_path = self.pathlist[idx]
         color = cv.imread(str(color_path))
-        
+        aname = os.path.basename(color_path)
         color = cv.resize(color,(self.valid_size,self.valid_size))
         
         warped_line = self.xdog_process(str(color_path))
@@ -313,8 +315,8 @@ class IllustTestDataset(Dataset):
         warped_line = cv.resize(warped_line,(self.valid_size,self.valid_size))
         
         color,warped_line = self._warp(color,warped_line)
+        warped,warped_line = self._warp(color,warped_line)
         
-
         # Line prepare
         line = self.xdog_process(str(self.sketchlist[idx]))
         line = (line * 255.0).reshape(line.shape[0], line.shape[1], 1)
@@ -340,7 +342,8 @@ class IllustTestDataset(Dataset):
                       'path': str(color_path),
                       'self_ref': torch.ones_like(color),
                       'ref': color,
-                      'label_ref': warped_line
+                      'label_ref': warped_line,
+                      'name': aname
                       }
 
         return input_dict

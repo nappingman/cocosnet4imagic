@@ -1,17 +1,18 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 #08.09 change pad
-#NOSAAN GENERATOR
+#SMALLER GENERATOR
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Function
 from models.networks.base_network import BaseNetwork
-from models.networks.normalization import get_nonspade_norm_layer, equal_lr
-from models.networks.architecture import ResnetBlock as ResnetBlock
+from models.networks.normalization_v1 import get_nonspade_norm_layer, equal_lr
+from models.networks.architecture_v1 import ResnetBlock as ResnetBlock
 from models.networks.architecture import SPADEResnetBlock as SPADEResnetBlock
-from models.networks.architecture import Attention
+from models.networks.architecture_v1 import SPADEResnetBlock as SPADEResnetBlock_v1
+from models.networks.architecture_v1 import Attention
 from models.networks.sync_batchnorm import SynchronizedBatchNorm2d, SynchronizedBatchNorm1d
 
 class SPADEGenerator(BaseNetwork):
@@ -22,27 +23,28 @@ class SPADEGenerator(BaseNetwork):
 
     def __init__(self, opt):
         super().__init__()
+        print('thi is netG in small samll  small size!!!!!!!!!')
         self.opt = opt
         nf = opt.ngf
-        print('erwewrw')
+
         self.sw, self.sh = self.compute_latent_vector_size(opt)
 
         ic = 0 + (3 if 'warp' in self.opt.CBN_intype else 0) + (self.opt.semantic_nc if 'mask' in self.opt.CBN_intype else 0)
-        self.fc = nn.Conv2d(ic, 16 * nf, 3, padding=1)
+        self.fc = nn.Conv2d(ic, 8 * nf, 3, padding=1)
         if opt.eqlr_sn:
             self.fc = equal_lr(self.fc)
 
-        self.head_0 = SPADEResnetBlock(16 * nf, 16 * nf, opt)
+        self.head_0 = SPADEResnetBlock_v1(8 * nf, 8 * nf, opt)
 
-        self.G_middle_0 = SPADEResnetBlock(16 * nf, 16 * nf, opt)
-        self.G_middle_1 = SPADEResnetBlock(16 * nf, 16 * nf, opt)
+        self.G_middle_0 = SPADEResnetBlock_v1(8 * nf, 8 * nf, opt)
+        self.G_middle_1 = SPADEResnetBlock_v1(8 * nf, 8 * nf, opt)
 
-        self.up_0 = SPADEResnetBlock(16 * nf, 8 * nf, opt)
-        self.up_1 = SPADEResnetBlock(8 * nf, 4 * nf, opt)
+        self.up_0 = SPADEResnetBlock_v1(8 * nf, 4 * nf, opt)
+        self.up_1 = SPADEResnetBlock_v1(4 * nf, 2 * nf, opt)
         if opt.use_attention:
-            self.attn = Attention(4 * nf, 'spectral' in opt.norm_G)
-        self.up_2 = SPADEResnetBlock(4 * nf, 2 * nf, opt)
-        self.up_3 = SPADEResnetBlock(2 * nf, 1 * nf, opt)
+            self.attn = Attention(2 * nf, 'spectral' in opt.norm_G)
+        self.up_2 = SPADEResnetBlock_v1(2 * nf, 1 * nf, opt)
+        self.up_3 = SPADEResnetBlock_v1(1 * nf, 1 * nf, opt)
 
         final_nc = nf
 
@@ -57,31 +59,31 @@ class SPADEGenerator(BaseNetwork):
 
         return sw, sh
 
-    def forward(self, input, warp_out=None):
-        seg = input if warp_out is None else warp_out
+    def forward(self, input, ref_img,warp_out):
+        seg =  warp_out
 
         # we downsample segmap and run convolution
         x = F.interpolate(seg, size=(self.sh, self.sw))
         x = self.fc(x)
 
-        x = self.head_0(x, seg)
+        x = self.head_0(x, seg,ref_img)
 
         x = self.up(x)
-        x = self.G_middle_0(x, seg)
+        x = self.G_middle_0(x, seg,ref_img)
 
-        x = self.G_middle_1(x, seg)
+        #x = self.G_middle_1(x, seg,ref_img)
 
         x = self.up(x)
-        x = self.up_0(x, seg)
+        x = self.up_0(x, seg,ref_img)
         x = self.up(x)
-        x = self.up_1(x, seg)
+        x = self.up_1(x, seg,ref_img)
 
         x = self.up(x)
         if self.opt.use_attention:
             x = self.attn(x)
-        x = self.up_2(x, seg)
+        x = self.up_2(x, seg,ref_img)
         x = self.up(x)
-        x = self.up_3(x, seg)
+        x = self.up_3(x, seg,ref_img)
 
         x = self.conv_img(F.leaky_relu(x, 2e-1))
         x = F.tanh(x)
@@ -147,15 +149,15 @@ class AdaptiveFeatureGenerator(BaseNetwork):
         x = self.head_0(x, seg)
         if self.opt.adaptor_nonlocal:
             x = self.attn(x)
-        x = self.G_middle_0(x, seg)
+        #x = self.G_middle_0(x, seg)
         x = self.G_middle_1(x, seg)
-        if self.opt.adaptor_res_deeper:
-            x = self.deeper0(x, seg)
-            x = self.deeper1(x, seg)
-            x = self.deeper2(x, seg)
-            if self.opt.dilation_conv:
-                x = self.degridding0(x)
-                x = self.degridding1(x)
+        # if self.opt.adaptor_res_deeper:
+            # x = self.deeper0(x, seg)
+            # x = self.deeper1(x, seg)
+            # x = self.deeper2(x, seg)
+            # if self.opt.dilation_conv:
+                # x = self.degridding0(x)
+                # x = self.degridding1(x)
 
         return x
 

@@ -76,13 +76,15 @@ class Pix2PixModel(torch.nn.Module):
             return d_loss
         elif mode == 'inference':
             out = {}
-            rand_idx = torch.randperm(input_semantics.size(0))
+            # rand_idx = torch.randperm(input_semantics.size(0))
             with torch.no_grad():
+                #out = self.inference(input_semantics, 
+                #        ref_semantics=ref_semantics[rand_idx], ref_image=ref_image[rand_idx], self_ref=self_ref)
                 out = self.inference(input_semantics, 
-                        ref_semantics=ref_semantics[rand_idx], ref_image=ref_image[rand_idx], self_ref=self_ref)
+                        ref_semantics=ref_semantics, ref_image=ref_image, self_ref=self_ref)
             out['input_semantics'] = input_semantics
-            out['ref_semantics'] = ref_semantics[rand_idx]
-            out['ref_image'] = ref_image[rand_idx]
+            out['ref_semantics'] = ref_semantics
+            out['ref_image'] = ref_image
 
             return out
         else:
@@ -286,7 +288,7 @@ class Pix2PixModel(torch.nn.Module):
             CBN_in = coor_out['warp_out']
         elif self.opt.CBN_intype == 'warp_mask':
             CBN_in = torch.cat((coor_out['warp_out'], input_semantics), dim=1)
-
+        #generate_out['fake_image'] = self.net['netG'](input_semantics, warp_out=CBN_in)
         generate_out['fake_image'] = self.net['netG'](input_semantics, coor_out['warp_ref_feature'], warp_out=CBN_in)
         generate_out = {**generate_out, **coor_out}
         return generate_out

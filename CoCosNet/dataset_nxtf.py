@@ -1,4 +1,5 @@
 import torch
+import os
 import numpy as np
 import cv2 as cv
 
@@ -36,7 +37,8 @@ class IllustDataset(Dataset):
 
         self.data_path = data_path
         self.pathlist = list(self.data_path.glob(f"**/*{extension}"))
-        self.train_list, self.val_list = self._train_val_split(self.pathlist)
+        #self.train_list, self.val_list = self._train_val_split(self.pathlist)
+        self.train_list = self.pathlist
         self.train_len = len(self.train_list)
 
         self.train_size = train_size
@@ -67,6 +69,7 @@ class IllustDataset(Dataset):
         split_point = int(len(pathlist) * 0.995)
         train = pathlist[:split_point]
         val = pathlist[split_point:]
+        print(train)
 
         return train, val
 
@@ -158,8 +161,8 @@ class IllustDataset(Dataset):
 
         jittered = self._jitter(color)
         warped,warped_line = self._warp(jittered,line)
-        #warped,warped_line = self.rotate(warped,warped_line)
-        #warped,warped_line = self.flip(warped,warped_line)
+        warped,warped_line = self.rotate(warped,warped_line)
+        warped,warped_line = self.flip(warped,warped_line)
         
 
         jittered = self._coordinate(jittered, self.color_space)
@@ -202,7 +205,7 @@ class IllustDataset(Dataset):
         # Color prepare
         color_path = self.train_list[idx]
         color = cv.imread(str(color_path))
-
+        print(color_path)
         # Line prepare
         line = self.line_process(color_path)
         jit, war, line,warped_line = self._preprocess(color, line)
@@ -234,17 +237,27 @@ class IllustTestDataset(Dataset):
                  sketch_path: Path,
                  line_method: LineArt,
                  extension=".jpg",
-                 valid_size=256):
+                 valid_size=256,
+                 nextframe=False,
+                 rndShuffle=False,
+                 b_path=Path("/archive/zhaowei/colorart/b/"),
+                 b_sketch=Path("/archive/zhaowei/colorart/b_sketch/")):
         self.valid_size =valid_size
         self.data_path = data_path
         self.pathlist = list(self.data_path.glob(f"**/*{extension}"))
         self.color_space = "rgb"
         self.line_space = "rgb"
         self.line_process = LineProcessor(sketch_path, line_method)
+        self.bline_process = LineProcessor(b_sketch, line_method)
         self.train_len = len(self.pathlist)
         self.src_per = 0.5
         self.tgt_per = 0.2
         self.thre = 50
+        self.nextframe = nextframe
+        self.sketch_path = sketch_path
+        self.b_path = b_path
+        self.b_sketch = b_sketch
+        self.rndShuffle = rndShuffle
 
         self.src_const = np.array([
             [-0.5, -0.5],
@@ -318,44 +331,158 @@ class IllustTestDataset(Dataset):
         return f"dataset length: {self.train_len}"
 
     def __len__(self):
+
         return self.train_len
 
     def __getitem__(self, idx):
-        # Color prepare
-        color_path = self.pathlist[idx]
-        color = cv.imread(str(color_path))
+        if self.rndShuffle:
+          # a frame
+          color_path = self.pathlist[idx]
+          color = cv.imread(str(color_path))
+          
+          color = cv.resize(color,(self.valid_size,self.valid_size))
+          
+          aname = os.path.basename(color_path)
+          line_path = os.path.join(self.sketch_path, aname)
+          line = cv.imread(str(line_path))
+          line = cv.resize(line,(self.valid_size,self.valid_size))
+          
+          
+          
         
-        color = cv.resize(color,(self.valid_size,self.valid_size))
+          # b frame
+          rnd_idx = np.random.randint(self.train_len)
+          b_color_path = self.pathlist[rnd_idx]
+          b_color = cv.imread(str(b_color_path))
+          b_color = cv.resize(b_color,(self.valid_size,self.valid_size))
+          bname = os.path.join(b_color_path)
+          b_line_path = os.path.join(self.sketch_path, bname)
+          b_line = cv.imread(str(b_line_path))
+          b_line = cv.resize(b_line,(self.valid_size,self.valid_size))      
+          
+          warped,warped_line = self._warp(b_color, b_line)  
+          
+          warped = self._coordinate(warped, self.color_space)
+          warped_line = self._coordinate(warped_line, self.line_space)
+  
+          
+          warped = self._totensor(warped)
+          warped_line = self._totensor(warped_line)
+          
+          
+          color = self._coordinate(color, self.color_space)
+          line = self._coordinate(line, self.line_space)
+          line = self._totensor(line)
+          color = self._totensor(color)
+          b_color = self._coordinate(b_color, self.color_space)
+          b_line = self._coordinate(b_line, self.line_space)    
+          b_line = self._totensor(b_line)
+          b_color = self._totensor(b_color)
+          
+          input_dict = {'label': line,
+                        'image': color,
+                        'path': str(color_path),
+                        'self_ref': torch.ones_like(color),
+                        'ref': warped,
+                        'label_ref': warped_line,
+                        'name': aname
+                        }
+        elif not self.nextframe:
+          color_path = self.pathlist[idx]
+          color = cv.imread(str(color_path))
+          
+          color = cv.resize(color,(self.valid_size,self.valid_size))
+          aname = os.path.basename(color_path)
+          
+  
+          # Line prepare
+          line_path = os.path.join(self.sketch_path, aname)
+          line = cv.imread(str(line_path))
+          line = cv.resize(line,(self.valid_size,self.valid_size))
+          
+          #warped,warped_line = self._warp(color,line)
+          
+          
+          color = self._coordinate(color, self.color_space)
+          line = self._coordinate(line, self.line_space)
+          
+          #warped = self._coordinate(warped, self.color_space)
+          #warped_line = self._coordinate(warped_line, self.line_space)
+  
+          
+          #warped = self._totensor(warped)
+          #warped_line = self._totensor(warped_line)
+          
+          line = self._totensor(line)
+          color = self._totensor(color)
+          
+          input_dict = {'label': line,
+                        'image': color,
+                        'path': str(color_path),
+                        'self_ref': torch.ones_like(color),
+                        'ref': color,
+                        'label_ref': line
+                        }
         
         
-
-        # Line prepare
-        line = self.line_process(color_path)
-        line = cv.resize(line,(self.valid_size,self.valid_size))
-        
-        warped,warped_line = self._warp(color,line)
-        
-        
-        color = self._coordinate(color, self.color_space)
-        line = self._coordinate(line, self.line_space)
-        
-        warped = self._coordinate(warped, self.color_space)
-        warped_line = self._coordinate(warped_line, self.line_space)
-
-        
-        warped = self._totensor(warped)
-        warped_line = self._totensor(warped_line)
-        
-        line = self._totensor(line)
-        color = self._totensor(color)
-        
-        input_dict = {'label': line,
-                      'image': color,
-                      'path': str(color_path),
-                      'self_ref': torch.ones_like(color),
-                      'ref': warped,
-                      'label_ref': warped_line
-                      }
+        if self.nextframe:
+            # a frame
+            ## a color
+            color_path = self.pathlist[idx]
+            aname = os.path.basename(color_path)
+            color = cv.imread(str(color_path))
+            color = cv.resize(color,(self.valid_size,self.valid_size))
+            print("a_colorpath",color_path)
+            ## a line
+            #line = self.line_process(color_path)
+            linepath = os.path.join(self.sketch_path, aname)
+            line = cv.imread(str(linepath))
+            line = cv.resize(line,(self.valid_size,self.valid_size))
+            
+            
+            color = self._coordinate(color, self.color_space)
+            line = self._coordinate(line, self.line_space)
+            
+            # b frame
+            ## b color
+            name = os.path.basename(color_path)
+            b_colorpath = os.path.join(self.b_path,name)
+            b_color = cv.imread(str(b_colorpath))
+            b_color = cv.resize(b_color,(self.valid_size,self.valid_size))
+            print("b_colorpath",b_colorpath)
+            ##b line
+            #bline = self.bline_process(Path(b_colorpath))
+            #bline = cv.resize(bline,(self.valid_size,self.valid_size))
+            bline_path = os.path.join(self.b_sketch, name)
+            bline = cv.imread(str(bline_path))
+            bline = cv.resize(bline,(self.valid_size,self.valid_size))
+            
+            #warped, warped_line = self._warp(b_color,bline)  
+            #warped = self._coordinate(warped, self.color_space)
+            #warped_line = self._coordinate(warped_line, self.line_space)  
+            #warped = self._totensor(warped)
+            #warped_line = self._totensor(warped_line)
+            
+            
+            b_color = self._coordinate(b_color, self.color_space)
+            bline = self._coordinate(bline, self.line_space)
+            
+            line = self._totensor(line)
+            color = self._totensor(color)
+            bline = self._totensor(bline)
+            b_color = self._totensor(b_color)
+            print("line", line.shape, bline.shape)
+            print("color ", color.shape, b_color.shape)
+            input_dict = {'label': line,
+                        'image': color,
+                        'path': str(color_path),
+                        'self_ref': torch.ones_like(color),
+                        'ref': b_color,
+                        'label_ref': bline,
+                        'name': name
+                        }
+            
+            
 
         return input_dict
 # class IllustTestDataset(Dataset):

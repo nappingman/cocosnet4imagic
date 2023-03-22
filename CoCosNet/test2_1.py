@@ -14,20 +14,23 @@ from models.pix2pix_model_v1 import Pix2PixModel
 
 
 from torch.utils.data import DataLoader
-from dataset import IllustTestDataset
+from dataset_nxtf import IllustTestDataset
 from pathlib import Path
 
 opt = TestOptions().parse()
    
 torch.manual_seed(0)
-dataset = IllustTestDataset(Path("/home/jason/code/Colorization/reference_scft/data/test/color_images2"),
-                         Path("/home/jason/code/Colorization/reference_scft/data/test/sketch_images2"),
-                         ["xdog"],
+dataset = IllustTestDataset(Path("/archive/zhaowei/colorart/a"),
+                         Path("/archive/zhaowei/colorart/a_sketch"),
+                         ["blend"],
                          "png",
-                         256)
+                         256,
+                         nextframe=True,
+                         b_path=Path("/archive/zhaowei/colorart/b/"),
+                         b_sketch=Path("/archive/zhaowei/colorart/b_sketch/"))
 dataloader = DataLoader(dataset,
                         batch_size=opt.batchSize,
-                        shuffle=True,
+                        shuffle=False,
                         drop_last=True)
 # dataloader = data.create_dataloader(opt)
 # dataloader.dataset[0]
@@ -73,11 +76,15 @@ for i, data_i in enumerate(dataloader):
         else:
             label = masktorgb(data_i['label'].cpu().numpy())
             label = torch.from_numpy(label).float() / 128 - 1
-        imgs = torch.cat((out['input_semantics'].data.cpu(), out['ref_image'].data.cpu(), out['fake_image'].data.cpu()), 0)
-        #imgs = torch.cat((label.cpu(), data_i['ref'].cpu(), out['fake_image'].data.cpu()), 0)
+        imgs =  out['fake_image'].data.cpu()
+        name = data_i['name'][0]
+        # imgs = torch.cat((out['input_semantics'].data.cpu(), out['ref_image'].data.cpu(), out['fake_image'].data.cpu()), 0)
+        imgs = torch.cat((label.cpu(), data_i['ref'].cpu(), out['fake_image'].data.cpu()), 0)
         try:
             imgs = (imgs + 1) / 2
-            vutils.save_image(imgs, save_root + '/test/' + opt.name + '/' + str(i) + '.png',  
+            vutils.save_image(imgs, './nowarp/' + str(name) ,  
                     nrow=imgs_num, padding=0, normalize=False)
+            #vutils.save_image(imgs, save_root + '/test/' + opt.name + '/' + str(i) + '.png',  
+            #        nrow=imgs_num, padding=0, normalize=False)
         except OSError as err:
             print(err)

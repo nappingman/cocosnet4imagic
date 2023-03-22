@@ -19,7 +19,7 @@ def find_network_using_name(target_network_name, filename, add=True):
     target_class_name = target_network_name + filename if add else target_network_name
     module_name = 'models.networks.' + filename
     network = util.find_class_in_module(target_class_name, module_name)
-
+    
     assert issubclass(network, BaseNetwork), \
        "Class %s should be a subclass of BaseNetwork" % network
 

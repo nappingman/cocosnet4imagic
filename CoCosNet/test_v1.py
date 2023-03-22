@@ -20,8 +20,6 @@ from pathlib import Path
 opt = TestOptions().parse()
    
 torch.manual_seed(0)
-#Path("/home/jason/code/Colorization/reference_scft/data/test/color_images2"),
-#Path("/home/jason/code/Colorization/reference_scft/data/test/sketch_images2"),
 dataset = IllustTestDataset(Path("/home/jason/code/Colorization/reference_scft/data/test/color_images2"),
                          Path("/home/jason/code/Colorization/reference_scft/data/test/sketch_images2"),
                          ["xdog"],

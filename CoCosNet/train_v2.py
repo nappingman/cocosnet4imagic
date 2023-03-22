@@ -1,6 +1,6 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
-# SAAN for paint colorization
+
 import os
 import numpy as np
 import torch

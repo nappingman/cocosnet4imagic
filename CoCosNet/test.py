@@ -20,10 +20,10 @@ from pathlib import Path
 opt = TestOptions().parse()
    
 torch.manual_seed(0)
-dataset = IllustTestDataset(Path("/home/jason/code/Colorization/reference_scft/data/test/color_images2"),
-                         Path("/home/jason/code/Colorization/reference_scft/data/test/sketch_images2"),
+dataset = IllustTestDataset(Path("/archive/xiaopeng/testcocosnet/rgb"),
+                         Path("/archive/xiaopeng/testcocosnet/gray"),
                          ["xdog"],
-                         "png",
+                         ".png",
                          256)
 dataloader = DataLoader(dataset,
                         batch_size=opt.batchSize,
@@ -46,8 +46,6 @@ for i, data_i in enumerate(dataloader):
     #data_i['stage1'] = torch.ones_like(data_i['stage1'])
     
     out = model(data_i, mode='inference')
-    print(f"out.shape={out.shape}")
-    exit()
     if opt.save_per_img:
         root = save_root + '/test_per_img/'
         if not os.path.exists(root + opt.name):
