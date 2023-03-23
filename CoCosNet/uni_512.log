@@ -1,0 +1,122 @@
+nohup: ignoring input
+apex not found
+apex not found
+----------------- Options ---------------
+               CBN_intype: warp_mask                     
+                    D_cam: 0.0                           
+            D_steps_per_G: 1                             
+                     PONO: True                          	[default: False]
+                   PONO_C: True                          	[default: False]
+           adaptor_kernel: 3                             
+         adaptor_nonlocal: False                         
+       adaptor_res_deeper: False                         
+               adaptor_se: False                         
+                     apex: False                         
+             aspect_ratio: 1.0                           
+                batchSize: 2                             	[default: 4]
+                    beta1: 0.5                           
+                    beta2: 0.999                         
+      cache_filelist_read: False                         
+     cache_filelist_write: False                         
+          checkpoints_dir: ./checkpoints                 
+   contain_dontcare_label: False                         
+           continue_train: False                         
+                crop_size: 256                           
+                    ctx_w: 1.0                           
+                 dataroot: dataset_path                  	[default: /mnt/blob/Dataset/ADEChallengeData2016/images]
+             dataset_mode: celebahqedge                  	[default: ade20k]
+            dilation_conv: False                         
+             display_freq: 2000                          
+          display_winsize: 256                           
+              domain_rela: False                         
+                 ema_beta: 0.999                         
+                  eqlr_sn: False                         
+                 fm_ratio: 1.0                           	[default: 0.1]
+                 gan_mode: hinge                         
+                  gpu_ids: 0                             	[default: 0,1,2,3]
+hard_reference_probability: 0.2                           
+                init_type: xavier                        
+            init_variance: 0.02                          
+                  isTrain: True                          	[default: None]
+                 label_nc: 15                            
+              lambda_feat: 10.0                          
+               lambda_vgg: 10.0                          
+       load_from_opt_file: False                         
+                load_size: 286                           
+                       lr: 0.0002                        
+               mask_epoch: -1                            
+               mask_noise: False                         
+                  maskmix: False                         
+             match_kernel: 3                             
+         max_dataset_size: 9223372036854775807           
+                    model: pix2pix                       
+                 nThreads: 16                            
+               n_layers_D: 4                             
+                     name: universal_512                 	[default: label2coco]
+                      ndf: 64                            
+                     netD: multiscale                    
+             netD_subarch: n_layer                       
+                     netG: spade                         
+                      ngf: 64                            
+                    niter: 30                            	[default: 100]
+              niter_decay: 30                            	[default: 100]
+                  no_TTUR: False                         
+                  no_flip: False                         
+          no_ganFeat_loss: False                         
+         no_pairing_check: True                          
+           noise_for_mask: False                         
+                   norm_D: spectralinstance              
+                   norm_E: spectralinstance              
+                   norm_G: spectralspadesyncbatch3x3     
+           novgg_featpair: 10.0                          
+                    num_D: 2                             
+                optimizer: adam                          
+                output_nc: 3                             
+                    phase: train                         
+          preprocess_mode: resize_and_crop               
+               print_freq: 100                           
+real_reference_probability: 0.7                           
+          save_epoch_freq: 10                            
+         save_latest_freq: 5000                          
+           serial_batches: False                         
+            show_warpmask: False                         
+                two_cycle: False                         
+                use_22ctx: False                         
+            use_attention: True                          	[default: False]
+            use_coordconv: False                         
+                  use_ema: False                         
+       vgg_normal_correct: True                          	[default: False]
+               video_like: False                         
+            warp_bilinear: True                          	[default: False]
+             warp_cycle_w: 1.0                           	[default: 0.0]
+       warp_mask_losstype: none                          
+               warp_patch: False                         
+              warp_self_w: 0.0                           
+              warp_stride: 4                             
+           weight_domainC: 0.0                           
+               weight_gan: 10.0                          
+              weight_mask: 0.0                           
+        weight_perceptual: 0.001                         	[default: 0.01]
+              which_epoch: latest                        
+         which_perceptual: 4_2                           	[default: 5_2]
+                    z_dim: 256                           
+----------------- End -------------------
+train.py --name universal_512 --dataset_mode celebahqedge --dataroot dataset_path --niter 30 --niter_decay 30 --which_perceptual 4_2 --weight_perceptual 0.001 --use_attention --PONO --PONO_C --vgg_normal_correct --fm_ratio 1.0 --warp_bilinear --warp_cycle_w 1 --batchSize 2 --gpu_ids 0
+Considering these line extraction methods...
+XDoG will be implemented.
+SketchKeras will be implemented.
+XDoG + SketchKeras will be implemented.
+
+
+Considering these augmentations for line arts...
+Morphology will be processed.
+ColorVariant will be processed.
+
+
+nf = 32, f = 32
+Network [SPADEGenerator] was created. Total number of parameters: 103.2 million. To see the architecture, do print(network).
+Network [MultiscaleDiscriminator] was created. Total number of parameters: 6.5 million. To see the architecture, do print(network).
+Network [NoVGGCorrespondence] was created. Total number of parameters: 50.8 million. To see the architecture, do print(network).
+inject nothing
+/anaconda/envs/ldm/lib/python3.8/site-packages/torch/nn/functional.py:1933: UserWarning: nn.functional.tanh is deprecated. Use torch.tanh instead.
+  warnings.warn("nn.functional.tanh is deprecated. Use torch.tanh instead.")

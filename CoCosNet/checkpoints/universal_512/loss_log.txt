@@ -57,3 +57,12 @@
 (epoch: 1, iters: 5700, time: 1.088) no_vgg_feat: 0.019 G_warp_cycle: 0.529 GAN: -0.942 GAN_Feat: 8.235 fm: 89.886 perc: 9.682 contextual: 257.580 D_Fake: 11.422 D_real: 0.659 
 (epoch: 1, iters: 5800, time: 1.057) no_vgg_feat: 0.019 G_warp_cycle: 0.773 GAN: 10.580 GAN_Feat: 8.442 fm: 117.015 perc: 17.187 contextual: 243.373 D_Fake: 1.432 D_real: 7.916 
 (epoch: 1, iters: 5900, time: 1.044) no_vgg_feat: 0.019 G_warp_cycle: 1.060 GAN: 6.526 GAN_Feat: 8.736 fm: 120.227 perc: 20.326 contextual: 265.041 D_Fake: 5.048 D_real: 14.294 
+(epoch: 1, iters: 6000, time: 1.055) no_vgg_feat: 0.014 G_warp_cycle: 1.153 GAN: 10.434 GAN_Feat: 11.947 fm: 161.846 perc: 30.392 contextual: 272.714 D_Fake: 2.893 D_real: 4.466 
+(epoch: 1, iters: 6100, time: 1.044) no_vgg_feat: 0.014 G_warp_cycle: 0.904 GAN: 8.024 GAN_Feat: 8.253 fm: 70.841 perc: 6.272 contextual: 247.934 D_Fake: 2.670 D_real: 7.731 
+(epoch: 1, iters: 6200, time: 1.040) no_vgg_feat: 0.025 G_warp_cycle: 0.907 GAN: 3.729 GAN_Feat: 11.057 fm: 104.844 perc: 14.783 contextual: 276.338 D_Fake: 6.846 D_real: 2.566 
+(epoch: 1, iters: 6300, time: 1.094) no_vgg_feat: 0.025 G_warp_cycle: 0.917 GAN: 8.956 GAN_Feat: 8.409 fm: 103.536 perc: 15.348 contextual: 315.925 D_Fake: 3.836 D_real: 6.155 
+(epoch: 1, iters: 6400, time: 1.073) no_vgg_feat: 0.077 G_warp_cycle: 0.716 GAN: 8.046 GAN_Feat: 8.342 fm: 82.272 perc: 8.613 contextual: 304.944 D_Fake: 3.323 D_real: 2.595 
+(epoch: 1, iters: 6500, time: 1.046) no_vgg_feat: 0.056 G_warp_cycle: 1.084 GAN: 3.680 GAN_Feat: 3.378 fm: 41.249 perc: 3.170 contextual: 303.591 D_Fake: 6.703 D_real: 11.924 
+(epoch: 1, iters: 6600, time: 1.032) no_vgg_feat: 0.101 G_warp_cycle: 0.702 GAN: 10.371 GAN_Feat: 9.506 fm: 101.468 perc: 16.361 contextual: 247.174 D_Fake: 3.355 D_real: 9.973 
+(epoch: 1, iters: 6700, time: 1.056) no_vgg_feat: 0.131 G_warp_cycle: 0.396 GAN: 6.559 GAN_Feat: 12.205 fm: 122.290 perc: 19.398 contextual: 305.859 D_Fake: 3.962 D_real: 1.258 
+(epoch: 1, iters: 6800, time: 1.049) no_vgg_feat: 0.083 G_warp_cycle: 0.776 GAN: -5.602 GAN_Feat: 11.909 fm: 121.903 perc: 19.192 contextual: 286.660 D_Fake: 15.861 D_real: 2.324 

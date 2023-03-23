@@ -87,7 +87,8 @@ for epoch in iter_counter.training_epochs():
             except OSError as err:
                 print(err)
 
-        if iter_counter.needs_displaying():
+        # if iter_counter.needs_displaying():
+        if i % 100 == 0:
             if not os.path.exists(save_root + opt.name):
                 os.makedirs(save_root + opt.name)
             imgs_num = data_i['label'].shape[0]
