@@ -14,6 +14,11 @@ from hint_processor import LineProcessor
 
 LineArt = List[Literal["xdog", "pencil", "digital", "blend"]]
 
+def read_txt2list(path):
+    with open(path, 'r') as fp:
+        filelist = fp.readlines()
+    ret_l = [item[0:-1] for item in list(filelist) if len(item.strip())>0]
+    return ret_l
 
 class IllustDataset(Dataset):
     """Dataset for training.
@@ -35,7 +40,8 @@ class IllustDataset(Dataset):
                  tgt_perturbation=0.2):
 
         self.data_path = data_path
-        self.pathlist = list(self.data_path.glob(f"**/*{extension}"))
+        # self.pathlist = list(self.data_path.glob(f"**/*{extension}"))
+        self.pathlist = read_txt2list("/home/v-penxiao/workspace/universal_images/sub_train.txt")
         self.train_list, self.val_list = self._train_val_split(self.pathlist)
         self.train_len = len(self.train_list)
 
@@ -97,14 +103,12 @@ class IllustDataset(Dataset):
     def _random_crop(line: np.array,
                      color: np.array,
                      size: int) -> (np.array, np.array):
-        scale = np.random.randint(396, 512)
+        scale = np.random.randint(396*2, 512*2)
         line = cv.resize(line, (scale, scale))
         color = cv.resize(color, (scale, scale))
-
         height, width = line.shape[0], line.shape[1]
         rnd0 = np.random.randint(height - size - 1)
         rnd1 = np.random.randint(width - size - 1)
-
         line = line[rnd0: rnd0 + size, rnd1: rnd1 + size]
         color = color[rnd0: rnd0 + size, rnd1: rnd1 + size]
 
@@ -136,6 +140,7 @@ class IllustDataset(Dataset):
         rotated = cv.warpAffine(img, M, (cols, rows))
         rotated2 = cv.warpAffine(img2, M, (cols, rows))
         return rotated, rotated2
+    
     def flip(self, img,img2):
         if np.random.choice([0,1],p=[0.5,0.5])==1:
             img = cv.flip(img, 0)
@@ -214,6 +219,8 @@ class IllustDataset(Dataset):
         warped_line = self._totensor(warped_line)
         jit = self._totensor(jit)
         
+        # print(f"image shape = {jit.shape}, label shape = {line.shape}, ref shape = {war.shape}, label ref = {warped_line}")
+
         input_dict = {'label': line,
                       'image': jit,
                       'path': str(color_path),
@@ -308,6 +315,7 @@ class IllustTestDataset(Dataset):
 
         jittered = self._jitter(color)
         warped,warped_line = self._warp(jittered,line)
+        # warped, warped_line = jittered, line
 
         jittered = self._coordinate(jittered, self.color_space)
         warped = self._coordinate(warped, self.color_space)
@@ -337,6 +345,7 @@ class IllustTestDataset(Dataset):
         line = cv.resize(line,(self.valid_size,self.valid_size))
         
         warped,warped_line = self._warp(color,line)
+        # warped,warped_line = color, line
         
         
         color = self._coordinate(color, self.color_space)
@@ -361,39 +370,6 @@ class IllustTestDataset(Dataset):
                       }
 
         return input_dict
-# class IllustTestDataset(Dataset):
-    # """Dataset for inference/test.
-
-       # Returns (line_path, color_path)
-           # line_path: path of line art
-           # color_path: path of color image
-    # """
-    # def __init__(self,
-                 # data_path: Path,
-                 # sketch_path: Path):
-
-        # self.path = data_path
-        # self.pathlist = list(self.path.glob('**/*.png'))
-        # self.pathlen = len(self.pathlist)
-
-        # self.sketch_path = sketch_path
-        # self.test_len = 200
-
-    # def __repr__(self):
-        # return f"dataset length: {self.pathlen}"
-
-    # def __len__(self):
-        # return self.test_len
-
-    # def __getitem__(self, idx):
-        # line_path = self.pathlist[idx]
-        # line_path = self.sketch_path / line_path.name
-
-        # rnd = np.random.randint(self.pathlen)
-        # style_path = self.pathlist[rnd]
-
-        # return line_path, style_path
-
 
 class LineCollator:
     """Collator for training.
@@ -523,7 +499,6 @@ class LineCollator:
         l = self._totensor(l_box)
 
         return (j, w, l)
-
 
 class LineTestCollator:
     """Collator for inference/test.

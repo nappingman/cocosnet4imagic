@@ -23,28 +23,34 @@ class SPADEGenerator(BaseNetwork):
 
     def __init__(self, opt):
         super().__init__()
-        print('ssssssssssffsada')
         self.opt = opt
-        nf = opt.ngf
+        nf = int(opt.ngf / 2)
+        # print(type(nf))
+        # exit()
+        f = 16 * 2
+        print(f"nf = {nf}, f = {f}")
 
         self.sw, self.sh = self.compute_latent_vector_size(opt)
 
         ic = 0 + (3 if 'warp' in self.opt.CBN_intype else 0) + (self.opt.semantic_nc if 'mask' in self.opt.CBN_intype else 0)
-        self.fc = nn.Conv2d(ic, 16 * nf, 3, padding=1)
+        self.fc = nn.Conv2d(ic, f * nf, 3, padding=1)
         if opt.eqlr_sn:
             self.fc = equal_lr(self.fc)
 
-        self.head_0 = SPADEResnetBlock_v1(16 * nf, 16 * nf, opt)
+        self.head_0 = SPADEResnetBlock_v1(f * nf, f * nf, opt)
 
-        self.G_middle_0 = SPADEResnetBlock_v1(16 * nf, 16 * nf, opt)
-        self.G_middle_1 = SPADEResnetBlock_v1(16 * nf, 16 * nf, opt)
+        self.G_middle_0 = SPADEResnetBlock_v1(f * nf, f * nf, opt)
+        self.G_middle_1 = SPADEResnetBlock_v1(f * nf, f * nf, opt)
 
-        self.up_0 = SPADEResnetBlock_v1(16 * nf, 8 * nf, opt)
-        self.up_1 = SPADEResnetBlock_v1(8 * nf, 4 * nf, opt)
+
+        self.up_0 = SPADEResnetBlock_v1(f * nf, f // 2 * nf, opt)
+        self.up_1 = SPADEResnetBlock_v1(f // 2 * nf, f // 4 * nf, opt)
         if opt.use_attention:
-            self.attn = Attention(4 * nf, 'spectral' in opt.norm_G)
-        self.up_2 = SPADEResnetBlock_v1(4 * nf, 2 * nf, opt)
-        self.up_3 = SPADEResnetBlock_v1(2 * nf, 1 * nf, opt)
+            self.attn = Attention(f // 4 * nf, 'spectral' in opt.norm_G)
+        self.up_2 = SPADEResnetBlock_v1(f // 4 * nf, f // 8 * nf, opt)
+        self.up_3 = SPADEResnetBlock_v1(f // 8 * nf, f // 16 * nf, opt)
+        # add for 512 resolution
+        self.up_4 = SPADEResnetBlock_v1(f // 16 * nf, f // 32 * nf, opt)
 
         final_nc = nf
 
@@ -61,13 +67,15 @@ class SPADEGenerator(BaseNetwork):
 
     def forward(self, input, ref_img,warp_out):
         seg =  warp_out
-
+        # print(f"ref img.shape = {ref_img.shape}, warp out.shape = {warp_out.shape}")
         # we downsample segmap and run convolution
         x = F.interpolate(seg, size=(self.sh, self.sw))
+        # print(f"interpolate x = {x.shape}")
         x = self.fc(x)
+        # print(f"fc x = {x.shape}")
 
         x = self.head_0(x, seg,ref_img)
-
+        # print(f"head x={x.shape}")
         x = self.up(x)
         x = self.G_middle_0(x, seg,ref_img)
 
@@ -84,10 +92,13 @@ class SPADEGenerator(BaseNetwork):
         x = self.up_2(x, seg,ref_img)
         x = self.up(x)
         x = self.up_3(x, seg,ref_img)
-
+        # add for 512 resolution
+        x = self.up(x)
+        x = self.up_4(x, seg,ref_img)
+        
         x = self.conv_img(F.leaky_relu(x, 2e-1))
         x = F.tanh(x)
-
+        # print(f"tanh x = {x.shape}")
         return x
 
 class AdaptiveFeatureGenerator(BaseNetwork):

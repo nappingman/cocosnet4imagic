@@ -20,11 +20,15 @@ from pathlib import Path
 opt = TestOptions().parse()
    
 torch.manual_seed(0)
-dataset = IllustTestDataset(Path("/archive/xiaopeng/testcocosnet/rgb"),
-                         Path("/archive/xiaopeng/testcocosnet/gray"),
+test_path = {
+    'rgb':'/home/v-penxiao/workspace/data/imagic_test/rgb',
+    'gray':'/home/v-penxiao/workspace/data/imagic_test/gray'
+}
+dataset = IllustTestDataset(Path(test_path['rgb']),
+                         Path(test_path['gray']),
                          ["xdog"],
                          ".png",
-                         256)
+                         512)
 dataloader = DataLoader(dataset,
                         batch_size=opt.batchSize,
                         shuffle=True,

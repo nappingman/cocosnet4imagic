@@ -24,8 +24,8 @@ opt = TrainOptions().parse()
 print(' '.join(sys.argv))
 
 train_path = {
-    'rgb':'/home/v-penxiao/workspace/data/train/sub_train_rgb',
-    'gray':'/home/v-penxiao/workspace/data/train/sub_train_gray'
+    'rgb':'/home/v-penxiao/workspace/universal_images/sub_train/rgb',
+    'gray':'/home/v-penxiao/workspace/universal_images/sub_train/gray'
 }
 #torch.manual_seed(0)
 # load the dataset
@@ -33,8 +33,8 @@ dataset = IllustDataset(Path(train_path['rgb']),
                          Path(train_path['gray']),
                          ["xdog", "pencil", "blend"],
                          "png",
-                         256,
-                         256,
+                         512,
+                         512,
                          "rgb",
                          "rgb",
                          0.5,
