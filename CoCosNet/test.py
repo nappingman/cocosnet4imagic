@@ -19,7 +19,23 @@ from pathlib import Path
 
 opt = TestOptions().parse()
    
+# print("\n\n\n\n",opt)
+# print(type(opt))
+# x=vars(opt)
+# print(f"x = {x}")
+# print(type(x))
+# import pickle
+# # open a file object in write binary mode
+# with open('coco_opt.pkl', 'wb') as f:
+#     # dump the dictionary object into the file object
+#     pickle.dump(x, f)
+# exit()
+
 torch.manual_seed(0)
+test_path = {
+    'rgb':'/home/v-penxiao/workspace/universal_images/sub_train/rgb',
+    'gray':'/home/v-penxiao/workspace/universal_images/sub_train/gray'
+}
 test_path = {
     'rgb':'/home/v-penxiao/workspace/data/imagic_test/rgb',
     'gray':'/home/v-penxiao/workspace/data/imagic_test/gray'

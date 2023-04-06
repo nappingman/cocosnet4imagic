@@ -27,7 +27,7 @@ train_path = {
     'rgb':'/home/v-penxiao/workspace/universal_images/sub_train/rgb',
     'gray':'/home/v-penxiao/workspace/universal_images/sub_train/gray'
 }
-#torch.manual_seed(0)
+torch.manual_seed(42)
 # load the dataset
 dataset = IllustDataset(Path(train_path['rgb']),
                          Path(train_path['gray']),

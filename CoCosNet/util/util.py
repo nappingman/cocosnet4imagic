@@ -19,7 +19,7 @@ import scipy.io as scio
 # |default_opt| should be the opt of the current experiment
 # |**kwargs|: if any configuration should be overriden, it can be specified here
 
-colormap = scio.loadmat('./util/color150.mat')['colors']
+colormap = scio.loadmat('/home/v-penxiao/workspace/cocosnet4imagic/CoCosNet/util/color150.mat')['colors']
 def masktorgb(x):
     mask = np.zeros((x.shape[0], 3, x.shape[2], x.shape[2]), dtype=np.uint8)
     for k in range(x.shape[0]):

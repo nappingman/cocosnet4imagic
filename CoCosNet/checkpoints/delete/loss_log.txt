@@ -1,1 +1,0 @@
-(epoch: 1, iters: 100, time: 1.081) no_vgg_feat: 0.602 G_warp_cycle: 0.491 GAN: 0.671 GAN_Feat: 7.529 fm: 353.361 perc: 156.949 contextual: 400.145 D_Fake: 10.771 D_real: 8.717 

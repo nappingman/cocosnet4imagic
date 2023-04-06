@@ -1,6 +1,7 @@
 import torch
 import numpy as np
 import cv2 as cv
+import os
 
 from PIL import Image
 from torch.utils.data import Dataset
@@ -41,7 +42,7 @@ class IllustDataset(Dataset):
 
         self.data_path = data_path
         # self.pathlist = list(self.data_path.glob(f"**/*{extension}"))
-        self.pathlist = read_txt2list("/home/v-penxiao/workspace/universal_images/sub_train.txt")
+        self.pathlist = read_txt2list("/home/v-penxiao/workspace/universal_images_sub_train.txt")
         self.train_list, self.val_list = self._train_val_split(self.pathlist)
         self.train_len = len(self.train_list)
 
@@ -182,8 +183,11 @@ class IllustDataset(Dataset):
             color_path = self.val_list[index]
             color = cv.imread(str(color_path))
             #line = self.line_process(color_path)
-            line = cv.imread(str(color_path.replace('sub_train_rgb','sub_train_gray')))
-
+            gray_path = str(color_path).replace('rgb','gray')
+            if not os.path.exists(gray_path):
+                print(f"no such gray image file in : {gray_path}")
+                raise FileNotFoundError
+            line = cv.imread(gray_path)
             jitter = self._jitter(color)
             warp = self._warp(jitter)
 
@@ -211,7 +215,12 @@ class IllustDataset(Dataset):
 
         # Line prepare
         #line = self.line_process(color_path)
-        line = cv.imread(str(color_path).replace('sub_train_rgb','sub_train_gray'))
+        gray_path = str(color_path).replace('rgb','gray')
+        if not os.path.exists(gray_path):
+            print(f"no such gray image file in : {gray_path}")
+            raise FileNotFoundError
+        # print(f"color_path = {color_path}, gray_path = {gray_path}")
+        line = cv.imread(gray_path)
         jit, war, line,warped_line = self._preprocess(color, line)
         
         war = self._totensor(war)
@@ -247,6 +256,7 @@ class IllustTestDataset(Dataset):
         self.valid_size =valid_size
         self.data_path = data_path
         self.pathlist = list(self.data_path.glob(f"**/*{extension}"))
+        # self.pathlist = read_txt2list("/home/v-penxiao/workspace/universal_images_sub_test.txt")
         self.color_space = "rgb"
         self.line_space = "rgb"
         self.line_process = LineProcessor(sketch_path, line_method)
@@ -341,11 +351,15 @@ class IllustTestDataset(Dataset):
 
         # Line prepare
         #line = self.line_process(color_path)
-        line = cv.imread(str(color_path).replace('rgb','gray'))
+        gray_path = str(color_path).replace('rgb','gray')
+        if not os.path.exists(gray_path):
+            print(f"no such gray image file in : {gray_path}")
+            raise FileNotFoundError
+        line = cv.imread(gray_path)
         line = cv.resize(line,(self.valid_size,self.valid_size))
         
-        warped,warped_line = self._warp(color,line)
-        # warped,warped_line = color, line
+        # warped,warped_line = self._warp(color,line)
+        warped,warped_line = color, line
         
         
         color = self._coordinate(color, self.color_space)

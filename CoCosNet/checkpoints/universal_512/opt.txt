@@ -16,7 +16,7 @@
      cache_filelist_write: False                         
           checkpoints_dir: ./checkpoints                 
    contain_dontcare_label: False                         
-           continue_train: False                         
+           continue_train: True                          	[default: False]
                 crop_size: 256                           
                     ctx_w: 1.0                           
                  dataroot: dataset_path                  	[default: /mnt/blob/Dataset/ADEChallengeData2016/images]
