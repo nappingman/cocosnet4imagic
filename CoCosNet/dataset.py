@@ -2,12 +2,13 @@ import torch
 import numpy as np
 import cv2 as cv
 import os
-
+import random
 from PIL import Image
 from torch.utils.data import Dataset
 from pathlib import Path
 from typing import List
 from typing_extensions import Literal
+import torchvision.transforms as transforms
 
 from thin_plate_spline import warping_image
 from torchvision.transforms import ColorJitter
@@ -43,6 +44,7 @@ class IllustDataset(Dataset):
         self.data_path = data_path
         # self.pathlist = list(self.data_path.glob(f"**/*{extension}"))
         self.pathlist = read_txt2list("/home/v-penxiao/workspace/universal_images_sub_train.txt")
+        # self.pathlist = read_txt2list("/home/v-penxiao/workspace/data/train/sub_train_filelist.txt")
         self.train_list, self.val_list = self._train_val_split(self.pathlist)
         self.train_len = len(self.train_list)
 
@@ -68,6 +70,10 @@ class IllustDataset(Dataset):
             [0.2, 0.2],
             [-0.2, -0.2]
         ])
+        color_aug = transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.5)
+
+        self.color_jitter = transforms.Compose([color_aug])
+
 
     @staticmethod
     def _train_val_split(pathlist: List) -> (List, List):
@@ -212,6 +218,12 @@ class IllustDataset(Dataset):
         # Color prepare
         color_path = self.train_list[idx]
         color = cv.imread(str(color_path))
+        dice = random.randint(1,2)
+        if dice % 2 == 0:
+            color = Image.fromarray(color)
+            color = self.color_jitter(color)
+            color = np.asarray(color)
+
 
         # Line prepare
         #line = self.line_process(color_path)
@@ -219,7 +231,7 @@ class IllustDataset(Dataset):
         if not os.path.exists(gray_path):
             print(f"no such gray image file in : {gray_path}")
             raise FileNotFoundError
-        # print(f"color_path = {color_path}, gray_path = {gray_path}")
+
         line = cv.imread(gray_path)
         jit, war, line,warped_line = self._preprocess(color, line)
         
@@ -227,7 +239,6 @@ class IllustDataset(Dataset):
         line = self._totensor(line)
         warped_line = self._totensor(warped_line)
         jit = self._totensor(jit)
-        
         # print(f"image shape = {jit.shape}, label shape = {line.shape}, ref shape = {war.shape}, label ref = {warped_line}")
 
         input_dict = {'label': line,
@@ -235,7 +246,7 @@ class IllustDataset(Dataset):
                       'path': str(color_path),
                       'self_ref': torch.ones_like(war),
                       'ref': war,
-                      'label_ref': warped_line
+                      'label_ref': warped_line,
                       }
 
         return input_dict
@@ -255,8 +266,8 @@ class IllustTestDataset(Dataset):
                  valid_size=256):
         self.valid_size =valid_size
         self.data_path = data_path
-        self.pathlist = list(self.data_path.glob(f"**/*{extension}"))
-        # self.pathlist = read_txt2list("/home/v-penxiao/workspace/universal_images_sub_test.txt")
+        # self.pathlist = list(self.data_path.glob(f"**/*{extension}"))
+        self.pathlist = read_txt2list("/home/v-penxiao/workspace/universal_images_sub_test.txt")
         self.color_space = "rgb"
         self.line_space = "rgb"
         self.line_process = LineProcessor(sketch_path, line_method)

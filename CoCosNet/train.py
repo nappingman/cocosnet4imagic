@@ -27,7 +27,7 @@ train_path = {
     'rgb':'/home/v-penxiao/workspace/universal_images/sub_train/rgb',
     'gray':'/home/v-penxiao/workspace/universal_images/sub_train/gray'
 }
-torch.manual_seed(42)
+torch.manual_seed(47)
 # load the dataset
 dataset = IllustDataset(Path(train_path['rgb']),
                          Path(train_path['gray']),
@@ -89,6 +89,7 @@ for epoch in iter_counter.training_epochs():
 
         # if iter_counter.needs_displaying():
         if i % 100 == 0:
+        # if i % 2 == 0:
             if not os.path.exists(save_root + opt.name):
                 os.makedirs(save_root + opt.name)
             imgs_num = data_i['label'].shape[0]
@@ -110,8 +111,10 @@ for epoch in iter_counter.training_epochs():
                     cycleshow = torch.cat((cycleshow, F.interpolate(trainer.out['warp_i2r'], scale_factor=opt.warp_stride), F.interpolate(trainer.out['warp_i2r2i'], scale_factor=opt.warp_stride)), 0)
 
             if cycleshow is not None:
+                # imgs = torch.cat((label.cpu(), data_i['ref'].cpu(), data_i['ori'].cpu(), trainer.out['warp_out'].cpu(), cycleshow.cpu(), trainer.get_latest_generated().data.cpu(), data_i['image'].cpu()), 0)
                 imgs = torch.cat((label.cpu(), data_i['ref'].cpu(), trainer.out['warp_out'].cpu(), cycleshow.cpu(), trainer.get_latest_generated().data.cpu(), data_i['image'].cpu()), 0)
             else:
+                # imgs = torch.cat((label.cpu(), data_i['ref'].cpu(), data_i['ori'].cpu(), trainer.out['warp_out'].cpu(), trainer.get_latest_generated().data.cpu(), data_i['image'].cpu()), 0)
                 imgs = torch.cat((label.cpu(), data_i['ref'].cpu(), trainer.out['warp_out'].cpu(), trainer.get_latest_generated().data.cpu(), data_i['image'].cpu()), 0)
             
             try:
