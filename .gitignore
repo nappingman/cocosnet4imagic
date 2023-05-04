@@ -1,0 +1,3 @@
+CoCosNet-v2/checkpoints/*/*.pth
+CoCosNet-v2/vgg/*.pth
+CoCosNet-v2/*.log
