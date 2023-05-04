@@ -1,5 +1,0 @@
-(epoch: 1, iters: 54, finish: 9.00%, time: 0.320) no_vgg_feat: 5.217 G_warp_cycle: 0.358 G_warp_self: 1771.861 GAN: -1.572 GAN_Feat: 14.078 fm: 1311.131 perc: 574.662 contextual: 734.685 D_Fake: 11.570 D_real: 8.000 
-(epoch: 1, iters: 102, finish: 17.00%, time: 0.305) no_vgg_feat: 5.209 G_warp_cycle: 0.330 G_warp_self: 747.657 GAN: 0.527 GAN_Feat: 14.609 fm: 1334.177 perc: 585.329 contextual: 659.706 D_Fake: 9.953 D_real: 8.531 
-(epoch: 1, iters: 150, finish: 25.00%, time: 0.328) no_vgg_feat: 5.160 G_warp_cycle: 0.238 G_warp_self: 549.842 GAN: 7.348 GAN_Feat: 13.781 fm: 991.474 perc: 308.837 contextual: 410.178 D_Fake: 3.807 D_real: 6.539 
-(epoch: 1, iters: 204, finish: 34.00%, time: 0.302) no_vgg_feat: 5.078 G_warp_cycle: 0.294 G_warp_self: 515.004 GAN: 10.711 GAN_Feat: 16.531 fm: 1175.900 perc: 395.231 contextual: 385.713 D_Fake: 2.871 D_real: 8.273 
-(epoch: 1, iters: 252, finish: 42.00%, time: 0.338) no_vgg_feat: 5.100 G_warp_cycle: 0.617 G_warp_self: 699.741 GAN: 11.594 GAN_Feat: 18.281 fm: 1206.302 perc: 414.945 contextual: 329.763 D_Fake: 1.316 D_real: 3.539 
